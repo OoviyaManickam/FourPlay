@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+:root {
+  --background: #FFF8F1;
+  --foreground: #1C1C1E;
+  --primary-accent: #7F5AF0;
+  --secondary-accent: #2CB67D;
+  --tertiary-accent: #FF7755;
+  --coral: #FF5C58;
+  --text-muted: #6C6F7B;
+  --highlight-bg-1: #F4EEFF;
+  --highlight-bg-2: #FFF3E8;
+  --button-hover: #6B4EDF;
+  --border: #EAEAEA;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.font-press-start-2p {
+  font-family: 'Press Start 2P', monospace !important;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+/* Accent color utilities */
+.text-accent-primary { color: var(--primary-accent); }
+.text-accent-secondary { color: var(--secondary-accent); }
+.text-accent-tertiary { color: var(--tertiary-accent); }
+.text-coral { color: var(--coral); }
+.text-muted { color: var(--text-muted); }
+.bg-highlight-1 { background: var(--highlight-bg-1); }
+.bg-highlight-2 { background: var(--highlight-bg-2); }
+.bg-accent-primary { background: var(--primary-accent); }
+.bg-accent-secondary { background: var(--secondary-accent); }
+.bg-accent-tertiary { background: var(--tertiary-accent); }
+.bg-coral { background: var(--coral); }
+.border-accent { border-color: var(--primary-accent); }
+.border-light { border-color: var(--border); }
+
+/* Card style utility */
+.card-white {
+  background: #fff;
+  border-radius: 1.25rem;
+  box-shadow: 0 2px 16px 0 rgba(31, 41, 55, 0.08);
+  border: 1.5px solid var(--border);
+}
+
+/* Button style utility */
+.btn-accent {
+  background: var(--primary-accent);
+  color: #fff;
+  transition: background 0.2s, transform 0.2s;
+}
+.btn-accent:hover {
+  background: var(--button-hover);
+  transform: scale(1.06) rotate(-2deg);
+}
+
+.outline-text {
+  -webkit-text-stroke: 2px #7F5AF0;
+  text-stroke: 2px #7F5AF0;
+  color: #FFF8F1;
+}
