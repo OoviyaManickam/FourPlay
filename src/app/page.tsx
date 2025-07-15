@@ -5,6 +5,8 @@ import { Typewriter } from "react-simple-typewriter";
 import "@fontsource/bungee";
 import "@fontsource/press-start-2p";
 import { HyperText } from "@/components/magicui/hyper-text";
+import Navbar from "@/components/navbar";
+import Footer from "@/components/footer";
 
 const heroColors = [
   "text-[#a259ff]", // Electric purple
@@ -62,6 +64,7 @@ const features = [
 export default function Home() {
   return (
     <div className="w-full">
+      <Navbar />
       {/* HERO SECTION */}
       <section className="w-full min-h-screen h-screen flex flex-col items-center justify-center bg-[#FFF8F1]">
         <div className="flex flex-col items-center select-none">
@@ -155,7 +158,7 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="font-bungee text-xl sm:text-2xl text-accent-secondary mb-2"
               >
-                No wallet? No problem. Just drop the memes.
+                Forget addresses. Just drop the memes.
               </motion.h3>
               <motion.p
                 initial={{ x: 40, opacity: 0 }}
@@ -244,6 +247,7 @@ export default function Home() {
           <span>Get Started</span> <span className="text-3xl">✨💸</span>
         </a>
       </section>
+      <Footer />
     </div>
   );
 }
