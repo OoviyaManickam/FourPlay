@@ -17,11 +17,17 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', 'Geist', Arial, Helvetica, sans-serif;
 }
 
 .font-press-start-2p {
   font-family: 'Press Start 2P', monospace !important;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+}
+
+.font-bungee {
+  font-family: 'Bungee', monospace !important;
   font-weight: 400;
   letter-spacing: 0.05em;
 }
@@ -62,6 +68,14 @@ body {
 
 .outline-text {
   -webkit-text-stroke: 2px #7F5AF0;
-  /* text-stroke: 2px #7F5AF0; */
   color: #FFF8F1;
 }
+
+/* Remove shadcn/tw-animate/shadcn-ui overrides for background, foreground, etc. */
+/*
+@import "tw-animate-css";
+@custom-variant dark (&:is(.dark *));
+@theme inline { ... }
+.dark { ... }
+@layer base { ... }
+*/

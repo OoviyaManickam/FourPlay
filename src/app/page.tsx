@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Typewriter } from "react-simple-typewriter";
 import "@fontsource/bungee";
 import "@fontsource/press-start-2p";
+import { HyperText } from "@/components/magicui/hyper-text";
 
 const heroColors = [
   "text-[#a259ff]", // Electric purple
@@ -64,7 +65,7 @@ export default function Home() {
       {/* HERO SECTION */}
       <section className="w-full min-h-screen h-screen flex flex-col items-center justify-center bg-[#FFF8F1]">
         <div className="flex flex-col items-center select-none">
-          <div className="flex gap-4 sm:gap-8 md:gap-12 lg:gap-16 items-center">
+          <div className="flex gap-4 sm:gap-8 md:gap-12 lg:gap-10 items-center">
             {/* F */}
             <motion.span
               initial={{ x: -200, opacity: 0 }}
@@ -107,7 +108,7 @@ export default function Home() {
             initial={{ scale: 0.2, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 180, delay: 1 }}
-            className="font-press-start-2p text-7xl sm:text-8xl text-[#FFF8F1] mt-4 drop-shadow-[0_0_8px_#7F5AF0,0_0_24px_#2CB67D,0_0_32px_#FF5C58] outline-text"
+            className="font-press-start-2p text-7xl sm:text-7xl text-[#FFF8F1] mt-4 drop-shadow-[0_0_8px_#7F5AF0,0_0_24px_#2CB67D,0_0_32px_#FF5C58] outline-text"
             style={{ WebkitTextStroke: '2px #7F5AF0' }}
           >
             PLAY
@@ -131,20 +132,87 @@ export default function Home() {
       </section>
 
       {/* WTF IS FOURPLAY SECTION */}
-      <section className="w-full min-h-screen h-screen flex flex-col justify-center items-center bg-[#FAFAFA]">
-        <h2 className="text-3xl sm:text-5xl font-bungee text-accent-primary mb-10 text-center">🧠 WTF is Fourplay?</h2>
-        <div className="flex flex-col sm:flex-row gap-10 justify-center items-stretch w-full max-w-4xl px-4">
-          {memeCards.map((card, i) => (
-            <div
-              key={i}
-              className="card-white flex-1 rounded-2xl p-8 shadow-lg border-light hover:scale-105 hover:rotate-[-2deg] transition-transform duration-300 cursor-pointer min-w-[220px] max-w-xs mx-auto border-t-4"
-              style={{ borderTopColor: i === 0 ? '#2CB67D' : '#FF5C58' }}
-            >
-              <div className="text-4xl mb-4">{card.emoji}</div>
-              <div className="font-bungee text-2xl text-accent-tertiary mb-2">{card.title}</div>
-              <div className="text-muted text-base font-geist-sans">{card.desc}</div>
+      <section className="w-full min-h-screen h-screen flex flex-col justify-center items-center bg-[#FAFAFA] px-4">
+        <div className="w-full max-w-3xl flex flex-col items-center">
+          <HyperText
+            className="text-3xl sm:text-5xl font-bungee text-accent-primary mb-6 text-center"
+            startOnView
+            duration={1200}
+          >
+            WTF is FourPlay?
+          </HyperText>
+          <p className="text-lg sm:text-xl text-center text-muted mb-8 font-geist-sans max-w-2xl">
+            You ever wish getting paid on-chain was as easy as saying four stupid words?
+            Now it is.
+          </p>
+          <div className="flex flex-col gap-8 w-full">
+            {/* Block 1 */}
+            <div className="group transition-all duration-300 hover:scale-[1.03] hover:shadow-xl bg-white rounded-2xl px-8 py-6 border border-light flex flex-col items-start relative overflow-hidden">
+              <motion.h3
+                initial={{ x: -40, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 120, delay: 0.1 }}
+                viewport={{ once: true }}
+                className="font-bungee text-xl sm:text-2xl text-accent-secondary mb-2"
+              >
+                No wallet? No problem. Just drop the memes.
+              </motion.h3>
+              <motion.p
+                initial={{ x: 40, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 120, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="text-base sm:text-lg text-muted font-geist-sans"
+              >
+                No addresses. No QR codes. Just four funny words to get paid.
+              </motion.p>
+              <span className="absolute right-0 top-0 w-2 h-full bg-accent-secondary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
-          ))}
+            {/* Block 2 */}
+            <div className="group transition-all duration-300 hover:scale-[1.03] hover:shadow-xl bg-white rounded-2xl px-8 py-6 border border-light flex flex-col items-start relative overflow-hidden">
+              <motion.h3
+                initial={{ x: -40, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 120, delay: 0.1 }}
+                viewport={{ once: true }}
+                className="font-bungee text-xl sm:text-2xl text-accent-primary mb-2"
+              >
+                Send anywhere. Land on Mantle.
+              </motion.h3>
+              <motion.p
+                initial={{ x: 40, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 120, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="text-base sm:text-lg text-muted font-geist-sans"
+              >
+                Works from any chain. All receipts settle on Mantle for max efficiency.
+              </motion.p>
+              <span className="absolute right-0 top-0 w-2 h-full bg-accent-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </div>
+            {/* Block 3 */}
+            <div className="group transition-all duration-300 hover:scale-[1.03] hover:shadow-xl bg-white rounded-2xl px-8 py-6 border border-light flex flex-col items-start relative overflow-hidden">
+              <motion.h3
+                initial={{ x: -40, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 120, delay: 0.1 }}
+                viewport={{ once: true }}
+                className="font-bungee text-xl sm:text-2xl text-accent-tertiary mb-2"
+              >
+                Secret codes, but make it silly.
+              </motion.h3>
+              <motion.p
+                initial={{ x: 40, opacity: 0 }}
+                whileInView={{ x: 0, opacity: 1 }}
+                transition={{ type: 'spring', stiffness: 120, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="text-base sm:text-lg text-muted font-geist-sans"
+              >
+                Only the person with the four-word combo can claim the funds.
+              </motion.p>
+              <span className="absolute right-0 top-0 w-2 h-full bg-accent-tertiary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </div>
+          </div>
         </div>
       </section>
 
