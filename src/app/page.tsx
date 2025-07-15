@@ -69,7 +69,7 @@ export default function Home() {
       {/* HERO SECTION */}
       <section className="w-full min-h-screen h-screen flex flex-col items-center justify-center bg-[#FFF8F1]">
         <div className="flex flex-col items-center select-none">
-          <div className="flex gap-4 sm:gap-8 md:gap-12 lg:gap-10 items-center">
+          <div className="flex gap-4 sm:gap-8 md:gap-12 lg:gap-7 items-center">
             {/* F */}
             <motion.span
               initial={{ x: -200, opacity: 0 }}
@@ -239,7 +239,7 @@ export default function Home() {
       </section> */}
 
       {/* CTA SECTION - Redefined as two-column bento grid + animated text */}
-      <section className="w-full min-h-screen h-screen flex flex-col md:flex-row items-center justify-center bg-[#FFF3E8] px-4 gap-8 relative overflow-hidden">
+      <section className="w-full min-h-screen h-screen flex flex-col md:flex-row items-center justify-center bg-[#FFF3E8] px-4 gap-2 relative overflow-hidden">
         {/* Left: Animated heading, content, button */}
         <div className="flex-1 flex flex-col justify-center items-start max-w-xl z-10">
           <TextAnimate
