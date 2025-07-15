@@ -7,6 +7,7 @@ import "@fontsource/press-start-2p";
 import { HyperText } from "@/components/magicui/hyper-text";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
+import { TextAnimate } from "@/components/magicui/text-animate";
 
 const heroColors = [
   "text-[#a259ff]", // Electric purple
@@ -220,7 +221,7 @@ export default function Home() {
       </section>
 
       {/* FEATURES CAROUSEL */}
-      <section className="w-full min-h-screen h-screen flex flex-col justify-center items-center bg-highlight-1">
+      {/* <section className="w-full min-h-screen h-screen flex flex-col justify-center items-center bg-highlight-1">
         <h2 className="text-3xl sm:text-5xl font-bungee text-accent-secondary mb-10 text-center">🛠 Features Preview</h2>
         <div className="flex gap-10 overflow-x-auto snap-x snap-mandatory pb-4 px-2 scrollbar-thin scrollbar-thumb-[#7F5AF0]/60 scrollbar-track-transparent w-full max-w-5xl">
           {features.map((f, i) => (
@@ -235,17 +236,88 @@ export default function Home() {
             </div>
           ))}
         </div>
-      </section>
+      </section> */}
 
-      {/* CTA SECTION */}
-      <section className="w-full min-h-screen h-screen flex flex-col items-center justify-center bg-[#FFF3E8]">
-        <h2 className="text-3xl sm:text-5xl font-bungee text-accent-tertiary mb-10 text-center">📣 Ready to Fourplay?</h2>
-        <a
+      {/* CTA SECTION - Redefined as two-column bento grid + animated text */}
+      <section className="w-full min-h-screen h-screen flex flex-col md:flex-row items-center justify-center bg-[#FFF3E8] px-4 gap-8 relative overflow-hidden">
+        {/* Left: Animated heading, content, button */}
+        <div className="flex-1 flex flex-col justify-center items-start max-w-xl z-10">
+          <TextAnimate
+            className="text-3xl sm:text-5xl font-bungee text-accent-tertiary mb-6 text-left"
+            animation="slideUp"
+            by="word"
+            duration={0.7}
+            startOnView
+          >
+            Ready to Fourplay?
+          </TextAnimate>
+          <div className="text-lg sm:text-2xl text-accent-primary font-bungee mb-2 text-left">Funny words in.<br />Real money out.</div>
+          <div className="text-base sm:text-lg text-muted font-geist-sans mb-8 text-left">
+            No middlemen. No stress. No friction.<br />That’s Fourplay.
+          </div>
+          
+          {/* <PulsatingButton
+            className="btn-accent text-2xl px-10 py-5 rounded-full shadow-lg border-4 border-light mt-2 font-bungee"
+            pulseColor="#7F5AF0"
+            duration="1.8s"
+            as="a"
+            href="/write-receipt"
+          >
+            Get Started
+          </PulsatingButton> */}
+          <a
           href="/write-receipt"
-          className="btn-accent text-2xl px-16 py-6 rounded-full shadow-lg border-4 border-light transition-all duration-300 flex items-center gap-3"
+          className="btn-accent font-bungee text-2xl px-12 py-6 rounded-full shadow-lg border-4 border-light transition-all duration-300 flex items-center gap-3"
         >
-          <span>Get Started</span> <span className="text-3xl">✨💸</span>
+          <span>Get Started</span> 
         </a>
+
+        </div>
+        {/* Right: Bento grid */}
+        <div className="flex-1 flex items-center justify-center w-full max-w-xl z-10">
+          <div className="grid grid-cols-2 grid-rows-2 gap-6 w-full max-w-md">
+            {/* Block 1 */}
+            <div className="group relative bg-white rounded-2xl shadow-lg border border-light p-6 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-300">
+              <motion.div
+                animate={{ rotate: [0, 8, -8, 0] }}
+                transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                className="text-4xl mb-2 font-bungee text-accent-secondary"
+              >1</motion.div>
+              <div className="font-bungee text-accent-tertiary text-lg mb-1">Write Receipt</div>
+              <div className="text-muted text-sm text-center">Generate 4 funny words</div>
+            </div>
+            {/* Block 2 */}
+            <div className="group relative bg-white rounded-2xl shadow-lg border border-light p-6 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-300">
+              <motion.div
+                animate={{ y: [0, -8, 8, 0] }}
+                transition={{ repeat: Infinity, duration: 2.2, ease: "easeInOut" }}
+                className="text-4xl mb-2 font-bungee text-accent-primary"
+              >2</motion.div>
+              <div className="font-bungee text-accent-secondary text-lg mb-1">Share Meme Words</div>
+              <div className="text-muted text-sm text-center">Send them like a link</div>
+            </div>
+            {/* Block 3 */}
+            <div className="group relative bg-white rounded-2xl shadow-lg border border-light p-6 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-300">
+              <motion.div
+                animate={{ scale: [1, 1.15, 1] }}
+                transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
+                className="text-4xl mb-2 font-bungee text-accent-primary "
+              >3</motion.div>
+              <div className="font-bungee text-accent-tertiary text-lg mb-1">Claim Tokens</div>
+              <div className="text-muted text-sm text-center">User enters words</div>
+            </div>
+            {/* Block 4 */}
+            <div className="group relative bg-white rounded-2xl shadow-lg border border-light p-6 flex flex-col items-center justify-center hover:scale-105 transition-transform duration-300">
+              <motion.div
+                animate={{ scale: [1, 1.1, 0.95, 1], rotate: [0, 6, -6, 0] }}
+                transition={{ repeat: Infinity, duration: 2.5, ease: "easeInOut" }}
+                className="text-4xl mb-2 font-bungee text-accent-tertiary "
+              >4</motion.div>
+              <div className="font-bungee text-accent-primary text-lg mb-1">Land on Mantle</div>
+              <div className="text-muted text-sm text-center">Boom. Tokens on Mantle.</div>
+            </div>
+          </div>
+        </div>
       </section>
       <Footer />
     </div>
