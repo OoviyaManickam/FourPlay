@@ -135,25 +135,6 @@ export default function Home() {
         </div>
       </section>
 
-      
-
-      {/* FEATURES CAROUSEL */}
-      {/* <section className="w-full min-h-screen h-screen flex flex-col justify-center items-center bg-highlight-1">
-        <h2 className="text-3xl sm:text-5xl font-bungee text-accent-secondary mb-10 text-center">🛠 Features Preview</h2>
-        <div className="flex gap-10 overflow-x-auto snap-x snap-mandatory pb-4 px-2 scrollbar-thin scrollbar-thumb-[#7F5AF0]/60 scrollbar-track-transparent w-full max-w-5xl">
-          {features.map((f, i) => (
-            <div
-              key={i}
-              className="card-white snap-center min-w-[320px] max-w-sm rounded-2xl p-10 flex flex-col items-center justify-center shadow-lg border-light hover:scale-105 hover:rotate-1 transition-transform duration-300 cursor-pointer border-t-4"
-              style={{ borderTopColor: f.color.includes('a259ff') ? '#7F5AF0' : f.color.includes('00ffb3') ? '#2CB67D' : f.color.includes('ff3cac') ? '#FF5C58' : '#FF7755' }}
-            >
-              <div className="text-5xl mb-4">{f.icon}</div>
-              <div className="font-bungee text-2xl text-accent-primary mb-2 text-center">{f.title}</div>
-              <div className="text-muted text-base font-geist-sans text-center">{f.desc}</div>
-            </div>
-          ))}
-        </div>
-      </section> */}
 
       {/* CTA SECTION - Redefined as two-column bento grid + animated text */}
       <section className="w-full min-h-screen h-screen flex flex-col md:flex-row items-center justify-center bg-[#FAFAFA] px-4 gap-2 relative overflow-hidden">
