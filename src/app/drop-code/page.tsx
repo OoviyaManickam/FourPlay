@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/navbar";
-import { TextAnimate } from "@/components/magicui/text-animate";
 import "@fontsource/press-start-2p";
 
 // Mock: Replace with real code from backend/session
@@ -119,7 +118,7 @@ export default function DropCodePage() {
             initial={{ scale: 0.2, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 180, delay: 1 }}
-            className="font-press-start-2p text-7xl sm:text-5xl text-[#FFF8F1] mb-5 drop-shadow-[0_0_8px_#7F5AF0,0_0_24px_#2CB67D,0_0_32px_#FF5C58] outline-text"
+            className="font-press-start-2p text-4xl sm:text-5xl text-[#FFF8F1] mb-5 drop-shadow-[0_0_8px_#7F5AF0,0_0_24px_#2CB67D,0_0_32px_#FF5C58] outline-text"
             style={{ WebkitTextStroke: '2px #7F5AF0' }}
           >
             LET'S
@@ -142,7 +141,7 @@ export default function DropCodePage() {
                   : { rotate: 0, y: 0, opacity: 1 }
                 }
                 transition={{ type: "spring", stiffness: 120 + i * 20, delay: 0.1 + i * 0.2 }}
-                className={`font-press-start-2p ${heroColors[i]} text-7xl sm:text-8xl drop-shadow-[0_2px_24px_rgba(44,182,125,0.4)]`}
+                className={`font-press-start-2p ${heroColors[i]} text-6xl sm:text-8xl drop-shadow-[0_2px_24px_rgba(44,182,125,0.4)]`}
               >
                 {char}
               </motion.span>
@@ -153,14 +152,14 @@ export default function DropCodePage() {
             initial={{ scale: 0.2, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 180, delay: 1 }}
-            className="font-press-start-2p text-7xl sm:text-7xl text-[#FFF8F1] mt-4 drop-shadow-[0_0_8px_#7F5AF0,0_0_24px_#2CB67D,0_0_32px_#FF5C58] outline-text"
+            className="font-press-start-2p text-5xl sm:text-7xl text-[#FFF8F1] mt-4 drop-shadow-[0_0_8px_#7F5AF0,0_0_24px_#2CB67D,0_0_32px_#FF5C58] outline-text"
             style={{ WebkitTextStroke: '2px #7F5AF0' }}
           >
             PLAY
           </motion.span>
         </div>
         {/* Animated Boxes (now just lines for input) */}
-        <div className="flex flex-col sm:flex-row gap-6 sm:gap-12 mt-5 mb-8 w-full max-w-3xl justify-center items-center">
+        <div className="flex flex-col sm:flex-row gap-4 sm:gap-12 sm:mt-5 sm:mb-8 mb-10 w-full max-w-3xl justify-center items-center">
           {[0, 1, 2, 3].map((i) => (
             <motion.div
               key={i}
@@ -191,7 +190,7 @@ export default function DropCodePage() {
           ))}
         </div>
         {/* Description */}
-        <div className="text-lg font-bungee text-accent-tertiary mb-2 text-center px-2">
+        <div className="text-lg font-bungee text-accent-tertiary sm:mb-2 mb:20 text-center px-2">
           Enter the four words to proceed with the payment
         </div>
         {/* Error message */}
