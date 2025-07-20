@@ -36,7 +36,7 @@ export default function ConfirmationPage() {
           Re-read the amount. Validate the vibes. Or just click send and pray to Vitalik.
         </div>
         {/* Receipt Card */}
-        <div className="bg-white/90 rounded-3xl shadow-2xl border border-light p-10 flex flex-col gap-4 items-stretch w-full max-w-xl mb-5 backdrop-blur-md">
+        <div className="bg-white/90 rounded-3xl shadow-2xl border border-light p-10 flex ml-10 mr-10 flex-col gap-4 items-stretch w-85 sm:w-full max-w-xl mb-5 backdrop-blur-md">
           <DetailRow label="From" value={receipt.from} />
           <DetailRow label="To" value={receipt.to} />
           <DetailRow label="Description" value={receipt.description} />
@@ -65,7 +65,7 @@ export default function ConfirmationPage() {
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 80, opacity: 0 }}
                 transition={{ type: "spring", stiffness: 200, damping: 18 }}
-                className="bg-white rounded-3xl shadow-2xl border-2 border-accent p-12 flex flex-col items-center"
+                className="bg-white rounded-3xl shadow-2xl border-2 border-accent p-12 w-80 sm:w-120 flex flex-col items-center"
               >
                 <motion.div
                   initial={{ scale: 0 }}
