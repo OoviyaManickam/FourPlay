@@ -112,7 +112,7 @@ export default function DropCodePage() {
   return (
     <div className="w-full min-h-screen bg-[#FFF8F1] flex flex-col relative">
       <Navbar />
-      <main className="flex-1 flex flex-col items-center justify-center pt-5 ">
+      <main className="flex-1 flex flex-col items-center justify-center pt-5 px-2 w-full">
         {/* Animated Heading - match main page */}
         <div className="flex flex-col items-center select-none mb-16">
         <motion.span
@@ -159,8 +159,8 @@ export default function DropCodePage() {
             PLAY
           </motion.span>
         </div>
-        {/* Animated Boxes */}
-        <div className="flex gap-12 mt-5 mb-8">
+        {/* Animated Boxes (now just lines for input) */}
+        <div className="flex flex-col sm:flex-row gap-6 sm:gap-12 mt-5 mb-8 w-full max-w-3xl justify-center items-center">
           {[0, 1, 2, 3].map((i) => (
             <motion.div
               key={i}
@@ -168,30 +168,30 @@ export default function DropCodePage() {
               animate={boxesEntered ? (shake ? "shake" : "visible") : "hidden"}
               variants={boxVariants}
               transition={{ delay: boxesEntered && !shake ? 0.5 + i * 0.12 : 0 }}
-              className={`rounded-[2rem] bg-accent-primary w-64 h-32 flex items-center justify-center shadow-lg relative transition-all duration-200 ${error ? "ring-4 ring-coral" : ""}`}
-            >
+              className={`relative flex flex-col items-center w-30 sm:w-60 h-20 sm:h-32 transition-all duration-200 ${error ? "ring-4 ring-coral" : ""}`}
+              >
               <input
                 ref={inputRefs[i]}
                 type="text"
                 inputMode="text"
                 autoComplete="off"
                 maxLength={16}
-                className="w-full h-full text-center text-3xl font-bungee bg-transparent outline-none text-white placeholder:text-white/60 tracking-wider"
+                className="w-full h-12 sm:h-16 text-center text-2xl sm:text-3xl font-bungee bg-transparent outline-none text-accent-primary placeholder:text-accent-primary/60 tracking-wider border-none"
                 value={inputs[i]}
                 onChange={(e) => handleInput(i, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(i, e)}
                 onBlur={() => handleBlur(i)}
                 disabled={loading}
                 spellCheck={false}
-                style={{ caretColor: "#FFF8F1" }}
+                style={{ caretColor: "#7F5AF0" }}
                 placeholder={""}
               />
-              <span className="absolute left-1/2 -translate-x-1/2 bottom-7 w-32 h-0.5 bg-white/60 rounded-full" />
+              <span className="block w-full h-1 bg-accent-primary rounded-full mt-2" />
             </motion.div>
           ))}
         </div>
         {/* Description */}
-        <div className="text-lg font-bungee text-accent-tertiary mb-2 text-center">
+        <div className="text-lg font-bungee text-accent-tertiary mb-2 text-center px-2">
           Enter the four words to proceed with the payment
         </div>
         {/* Error message */}
