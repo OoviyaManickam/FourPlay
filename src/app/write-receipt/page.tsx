@@ -220,10 +220,11 @@ export default function WriteReceiptPage() {
               {wordsLoaded && (
                 <div className="flex items-center justify-center w-full">
                   <TextRevealCard
-                    text="hover over the words"
-                    revealText={words.join(" ")}
-                    className="bg-[#FFF8F1] border-accent-primary shadow-2xl w-full max-w-[900px] min-w-[500px]  min-h-[120px] rounded-2xl flex flex-col items-center justify-center px-10 py-8"
-                  >
+                        text="hover over the words"
+                        revealText={words.join(" ")}
+                        className="bg-[#FFF8F1] border-accent-primary shadow-2xl w-full max-w-[90vw] sm:max-w-[600px] lg:max-w-[900px] min-h-[120px] rounded-xl sm:rounded-2xl flex flex-col items-center justify-center px-6 sm:px-10 py-6 sm:py-8"
+                      >
+
                     <TextRevealCardTitle className="font-bungee text-accent-primary">
                       Copy your secret meme code 
                       <button
