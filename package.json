@@ -9,6 +9,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@fontsource/bungee": "^5.2.6",
+    "@fontsource/press-start-2p": "^5.2.6",
+    "@reown/appkit": "^1.7.16",
+    "@reown/appkit-adapter-wagmi": "^1.7.16",
+    "@tanstack/react-query": "^5.83.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cobe": "^0.6.4",
@@ -17,7 +22,10 @@
     "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.3.1"
+    "react-simple-typewriter": "^5.0.1",
+    "tailwind-merge": "^3.3.1",
+    "viem": "^2.33.0",
+    "wagmi": "^2.16.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
