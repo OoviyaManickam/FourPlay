@@ -40,7 +40,7 @@ export const modal = createAppKit({
 //   }
 
 themeVariables: {
-    "--w3m-accent": "#8A2BE2",               // primary accent
+    "--w3m-accent": "#7F5AF0",               // primary accent
     // "--w3m-color-mix": "#00BB7F",           // color blending
     // "--w3m-color-mix-strength": 40,
     "--w3m-font-family": "Bungee, cursive",  // use Bungee font
