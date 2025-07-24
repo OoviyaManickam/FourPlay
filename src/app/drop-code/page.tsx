@@ -5,6 +5,8 @@ import Navbar from "@/components/navbar";
 import "@fontsource/press-start-2p";
 import { supabase } from "@/lib/supabaseClient";
 import axios from "axios";
+import { useAccount } from 'wagmi';
+import { useWalletClient, usePublicClient } from 'wagmi';
 
 // Remove CORRECT_WORDS and related mock logic
 
@@ -33,6 +35,12 @@ export default function DropCodePage() {
   const inputRefs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quoteResult, setQuoteResult] = useState<any>(null);
+  const [payLoading, setPayLoading] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+  const [paySuccess, setPaySuccess] = useState<string | null>(null);
+  const { address, isConnected } = useAccount();
+  const { data: walletClient } = useWalletClient();
+  const publicClient = usePublicClient();
 
   // Animate in sequence
   const [boxesEntered, setBoxesEntered] = useState(false);
@@ -116,21 +124,53 @@ export default function DropCodePage() {
     setQuoteResult(null);
     try {
       const params = {
-        srcChainKey: selectedChain,
-        srcToken: selectedToken,
-        srcAddress: receipt.toaddress, // sender address from db
-        dstChainKey: receipt.destination_chain,
-        dstToken: receipt.token_address,
-        dstAddress: receipt.toaddress,
-        srcAmount: receipt.value,
+        srcChainKey: selectedChain, // user paying side
+        srcToken: selectedToken,    // user paying side
+        srcAddress: address, // currently connected wallet
+        dstChainKey: receipt.destination_chain, // from receipt
+        dstToken: receipt.token_address,        // from receipt
+        dstAddress: receipt.toaddress,         // from receipt
+        srcAmount: receipt.value,              // from receipt
         dstAmountMin: Math.floor(Number(receipt.value) * 0.95).toString(),
       };
       const res = await axios.get('https://stargate.finance/api/v1/quotes', { params });
+      console.log("parameters-",params);
       setQuoteResult(res.data);
     } catch (err: any) {
       setQuoteResult({ error: err.response?.data?.message || err.message });
     }
     setQuoteLoading(false);
+  }
+
+  // Handler for Pay button using wagmi viem and multi-step execution
+  async function handlePay() {
+    setPayLoading(true);
+    setPayError(null);
+    setPaySuccess(null);
+    try {
+      if (!quoteResult || !quoteResult.quotes || !quoteResult.quotes.length) throw new Error('No quote available');
+      if (!walletClient || !publicClient || !address) throw new Error('Wallet not connected');
+      const route = quoteResult.quotes[0];
+      for (let i = 0; i < route.steps.length; i++) {
+        const executableTransaction = route.steps[i].transaction;
+        const txParams: Record<string, unknown> = {
+          account: address,
+          to: executableTransaction.to,
+          data: executableTransaction.data,
+        };
+        if (executableTransaction.value && executableTransaction.value !== '0') {
+          txParams.value = BigInt(executableTransaction.value);
+        }
+        // Send transaction
+        const txHash = await walletClient.sendTransaction(txParams);
+        // Wait for transaction to be mined
+        await publicClient.waitForTransactionReceipt({ hash: txHash });
+      }
+      setPaySuccess('All steps executed successfully');
+    } catch (error: any) {
+      setPayError(error.message || 'Transaction failed');
+    }
+    setPayLoading(false);
   }
 
   // Animate boxes after heading
@@ -292,9 +332,29 @@ export default function DropCodePage() {
               </button>
               {/* Show quote result */}
               {quoteResult && (
-                <div className="mt-4 p-4 bg-highlight-2 rounded-lg border border-light text-sm font-geist-sans overflow-x-auto">
-                  <pre className="whitespace-pre-wrap break-all">{JSON.stringify(quoteResult, null, 2)}</pre>
-                </div>
+                <>
+                  <div className="mt-4 p-4 bg-highlight-2 rounded-lg border border-light text-sm font-geist-sans overflow-x-auto">
+                    <pre className="whitespace-pre-wrap break-all">{JSON.stringify(quoteResult, null, 2)}</pre>
+                  </div>
+                  {/* Show route fee if available */}
+                  {quoteResult.quotes && quoteResult.quotes[0] && quoteResult.quotes[0].fees && quoteResult.quotes[0].fees.length > 0 && (
+                    <div className="mt-2 font-bungee text-accent-primary text-lg">
+                      Route Fee: {quoteResult.quotes[0].fees[0].amount}
+                    </div>
+                  )}
+                  {/* Pay button */}
+                  <button
+                    className="btn-accent text-xl font-bungee px-8 py-4 rounded-full shadow-lg mt-4 hover:scale-105 transition-transform disabled:opacity-60"
+                    onClick={handlePay}
+                    disabled={payLoading}
+                    type="button"
+                  >
+                    {payLoading ? "Processing..." : "Pay"}
+                  </button>
+                  {/* Show pay status */}
+                  {payError && <div className="mt-2 text-red-500 font-bungee">{payError}</div>}
+                  {paySuccess && <div className="mt-2 text-green-600 font-bungee">{paySuccess}</div>}
+                </>
               )}
             </div>
           ) : (

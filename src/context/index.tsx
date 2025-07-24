@@ -43,7 +43,7 @@ themeVariables: {
     "--w3m-accent": "#7F5AF0",               // primary accent
     // "--w3m-color-mix": "#00BB7F",           // color blending
     // "--w3m-color-mix-strength": 40,
-    "--w3m-font-family": "Bungee, cursive",  // use Bungee font
+    "--w3m-font-family": "Bungee",  // use Bungee font
   
     "--w3m-border-radius-master": "8px",
     
