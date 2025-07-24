@@ -1,15 +1,15 @@
 'use client';
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { TextAnimate } from "@/components/magicui/text-animate";
 import { TextRevealCard, TextRevealCardTitle, TextRevealCardDescription } from "@/components/ui/text-reveal-card";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabaseClient";
 import { useAccount } from 'wagmi';
+// Make sure to install axios: npm install axios
+import axios from "axios";
 
-const cryptoOptions = ["MNT", "BTC", "ETH", "USDT"];
-const expirationOptions = ["Never", "1 hour", "1 day", "7 days"];
 const tagOptions = ["Freelance", "Bounty", "DAO Ops", "Salary", "Reimbursement"];
 
 const funkyWordsList = [
@@ -43,8 +43,7 @@ const SHUFFLE_SOUND = "/sounds/shuffle.mp3";
 const REVEAL_SOUND = "/sounds/reveal.mp3";
 
 export default function WriteReceiptPage() {
-  const [crypto, setCrypto] = useState(cryptoOptions[0]);
-  const [expiration, setExpiration] = useState(expirationOptions[0]);
+  const [crypto, setCrypto] = useState("");
   const [tag, setTag] = useState("");
   const [showReveal, setShowReveal] = useState(false);
   const [words, setWords] = useState(() => getRandomWords());
@@ -57,6 +56,23 @@ export default function WriteReceiptPage() {
   const [loading, setLoading] = useState(false);
   const revealTimeout = useRef<NodeJS.Timeout | null>(null);
   const { address: toaddress, isConnected } = useAccount();
+  type Token = { address: string; symbol: string; name: string; chainKey: string };
+  const [tokens, setTokens] = useState<Token[]>([]);
+
+  // Fetch tokens for destination chain 'mantle' on mount
+  useEffect(() => {
+    async function fetchTokens() {
+      try {
+        const res = await axios.get("https://stargate.finance/api/v1/tokens");
+        const mantleTokens = res.data.tokens.filter((token: Token) => token.chainKey === "mantle");
+        setTokens(mantleTokens);
+        if (mantleTokens.length > 0) setCrypto(mantleTokens[0].address);
+      } catch {
+        setTokens([]);
+      }
+    }
+    fetchTokens();
+  }, []);
 
   function playSound(url: string) {
     const audio = new Audio(url);
@@ -85,8 +101,11 @@ export default function WriteReceiptPage() {
         toaddress,
         value: amount,
         description,
+        destination_chain: 'mantle',
+        token_address: crypto,
       }
     ]);
+    console.log("token address",crypto);
     setLoading(false);
     if (supabaseError) {
       setError("Error saving receipt: " + supabaseError.message);
@@ -137,8 +156,8 @@ export default function WriteReceiptPage() {
           >
              We&apos;ll cast the spell.
           </TextAnimate>
-          <p className="text-lg text-muted font-geist-sans mb-4">Fill in the deets and let Fourplay turn your request into a secret meme code.</p>
-          <p className="text-base text-muted font-geist-sans">No wallet addresses. No awkward follow-ups. Just funny words and fast payments.</p>
+          <p className="text-lg text-muted font-bungee mb-4">Fill in the deets and let Fourplay turn your request into a secret meme code.</p>
+          <p className="text-base text-muted font-bungee">No wallet addresses. No awkward follow-ups. Just funny words and fast payments.</p>
         </div>
         {/* Right Side: Form */}
         <form
@@ -175,30 +194,30 @@ export default function WriteReceiptPage() {
               />
             </div>
             <div>
-              <label className="block font-bungee text-accent-primary mb-2 invisible">Crypto</label>
-              <select
-                value={crypto}
-                onChange={e => setCrypto(e.target.value)}
-                className="px-4 py-3 rounded-lg border border-light bg-highlight-2 font-bungee text-accent-primary focus:outline-none focus:ring-2 focus:ring-accent-primary transition"
-              >
-                {cryptoOptions.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
+              <label className="block font-bungee text-accent-primary mb-2">Token</label>
+              <div className="relative">
+                <select
+                  value={crypto}
+                  onChange={e => setCrypto(e.target.value)}
+                  className="px-4 py-3 rounded-lg border border-light bg-highlight-2 font-bungee text-accent-primary focus:outline-none focus:ring-2 focus:ring-accent-primary transition w-full appearance-none cursor-pointer"
+                  style={{ maxHeight: '48px', overflowY: 'auto' }}
+                  size={1}
+                >
+                  {tokens.length === 0 && <option value="">Loading...</option>}
+                  {tokens.map((token: Token) => (
+                    <option key={token.address} value={token.address} className="font-bungee text-accent-primary bg-white hover:bg-accent-primary/10">
+                      {token.symbol} ({token.name})
+                    </option>
+                  ))}
+                </select>
+                {/* Custom dropdown arrow */}
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-accent-primary">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
-          </div>
-          {/* Expiration */}
-          <div>
-            <label className="block font-bungee text-accent-primary mb-2">Expiration</label>
-            <select
-              value={expiration}
-              onChange={e => setExpiration(e.target.value)}
-              className="w-full px-4 py-3 rounded-lg border border-light bg-highlight-2 font-bungee text-accent-primary focus:outline-none focus:ring-2 focus:ring-accent-primary transition"
-            >
-              {expirationOptions.map(opt => (
-                <option key={opt} value={opt}>{opt}</option>
-              ))}
-            </select>
           </div>
           {/* Tag (optional) */}
           <div>
