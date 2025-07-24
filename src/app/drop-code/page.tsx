@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/navbar";
 import "@fontsource/press-start-2p";
+import { supabase } from "@/lib/supabaseClient";
 
-// Mock: Replace with real code from backend/session
-const CORRECT_WORDS = ["unicorn", "pizza", "laser", "banana"];
+// Remove CORRECT_WORDS and related mock logic
 
 const heroColors = [
   "text-accent-secondary", // F
@@ -29,6 +29,7 @@ export default function DropCodePage() {
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shake, setShake] = useState(false);
+  const [receipt, setReceipt] = useState<null | { toaddress: string; value: string; description: string; meme_code: string }>(null);
   const inputRefs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
   const router = useRouter();
 
@@ -81,14 +82,20 @@ export default function DropCodePage() {
   };
 
   // Handle submit
-  const handleSubmit = (words: string[]) => {
+  const handleSubmit = async (words: string[]) => {
     if (loading) return; // Prevent double submit
-    if (words.map((w) => w.toLowerCase()).join(" ") === CORRECT_WORDS.join(" ")) {
-      setLoading(true);
-      // Keep overlay up until redirect
-      setTimeout(() => {
-        router.push("/confirmation");
-      }, 5000);
+    const code = words.map((w) => w.toLowerCase()).join(" ");
+    setLoading(true);
+    setError(false);
+    // Query Supabase for the meme code
+    const { data, error: supabaseError } = await supabase
+      .from('receipts')
+      .select('toaddress, value, description, meme_code')
+      .eq('meme_code', code)
+      .single();
+    setLoading(false);
+    if (data) {
+      setReceipt(data);
     } else {
       setError(true);
       setShake(true);
@@ -158,54 +165,76 @@ export default function DropCodePage() {
             PLAY
           </motion.span>
         </div>
-        {/* Animated Boxes (now just lines for input) */}
-        <div className="flex flex-col sm:flex-row gap-4 sm:gap-12 sm:mt-5 sm:mb-8 mb-10 w-full max-w-3xl justify-center items-center">
-          {[0, 1, 2, 3].map((i) => (
-            <motion.div
-              key={i}
-              initial="hidden"
-              animate={boxesEntered ? (shake ? "shake" : "visible") : "hidden"}
-              variants={boxVariants}
-              transition={{ delay: boxesEntered && !shake ? 0.5 + i * 0.12 : 0 }}
-              className={`relative flex flex-col items-center w-30 sm:w-60 h-20 sm:h-32 transition-all duration-200 ${error ? "ring-4 ring-coral" : ""}`}
-              >
-              <input
-                ref={inputRefs[i]}
-                type="text"
-                inputMode="text"
-                autoComplete="off"
-                maxLength={16}
-                className="w-full h-12 sm:h-16 text-center text-2xl sm:text-3xl font-bungee bg-transparent outline-none text-accent-primary placeholder:text-accent-primary/60 tracking-wider border-none"
-                value={inputs[i]}
-                onChange={(e) => handleInput(i, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(i, e)}
-                onBlur={() => handleBlur(i)}
-                disabled={loading}
-                spellCheck={false}
-                style={{ caretColor: "#7F5AF0" }}
-                placeholder={""}
-              />
-              <span className="block w-full h-1 bg-accent-primary rounded-full mt-2" />
-            </motion.div>
-          ))}
-        </div>
-        {/* Description */}
-        <div className="text-lg font-bungee text-accent-tertiary sm:mb-2 mb:20 text-center px-2">
-          Enter the four words to proceed with the payment
-        </div>
-        {/* Error message */}
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="text-coral font-bungee text-lg mt-2 mb-2"
-            >
-              Incorrect code! Try again.
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* If receipt is found, show receipt card in a modal overlay like write-receipt */}
+        {receipt && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+            <div className="absolute inset-0" onClick={() => setReceipt(null)} />
+            <div className="relative z-10 flex flex-col items-center w-full max-w-lg">
+              <div className="flex items-center justify-center w-full">
+                <div className="bg-white/90 rounded-3xl shadow-2xl border border-light p-10 flex flex-col gap-4 items-stretch w-full max-w-[90vw] sm:max-w-[600px] lg:max-w-[900px] min-h-[120px] backdrop-blur-md">
+                  <div className="text-2xl font-bungee text-accent-primary mb-4 text-center">Receipt</div>
+                  <DetailRow label="To Address" value={receipt.toaddress} />
+                  <DetailRow label="Amount" value={receipt.value} />
+                  <DetailRow label="Description" value={receipt.description} />
+                  <DetailRow label="Meme Code" value={receipt.meme_code} />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* If no receipt, show input UI */}
+        {!receipt && (
+          <>
+            {/* Animated Boxes (now just lines for input) */}
+            <div className="flex flex-col sm:flex-row gap-4 sm:gap-12 sm:mt-5 sm:mb-8 mb-10 w-full max-w-3xl justify-center items-center">
+              {[0, 1, 2, 3].map((i) => (
+                <motion.div
+                  key={i}
+                  initial="hidden"
+                  animate={boxesEntered ? (shake ? "shake" : "visible") : "hidden"}
+                  variants={boxVariants}
+                  transition={{ delay: boxesEntered && !shake ? 0.5 + i * 0.12 : 0 }}
+                  className={`relative flex flex-col items-center w-30 sm:w-60 h-20 sm:h-32 transition-all duration-200 ${error ? "ring-4 ring-coral" : ""}`}
+                  >
+                  <input
+                    ref={inputRefs[i]}
+                    type="text"
+                    inputMode="text"
+                    autoComplete="off"
+                    maxLength={16}
+                    className="w-full h-12 sm:h-16 text-center text-2xl sm:text-3xl font-bungee bg-transparent outline-none text-accent-primary placeholder:text-accent-primary/60 tracking-wider border-none"
+                    value={inputs[i]}
+                    onChange={(e) => handleInput(i, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(i, e)}
+                    onBlur={() => handleBlur(i)}
+                    disabled={loading}
+                    spellCheck={false}
+                    style={{ caretColor: "#7F5AF0" }}
+                    placeholder={""}
+                  />
+                  <span className="block w-full h-1 bg-accent-primary rounded-full mt-2" />
+                </motion.div>
+              ))}
+            </div>
+            {/* Description */}
+            <div className="text-lg font-bungee text-accent-tertiary sm:mb-2 mb:20 text-center px-2">
+              Enter the four words to proceed with the payment
+            </div>
+            {/* Error message */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  className="text-coral font-bungee text-lg mt-2 mb-2"
+                >
+                  Incorrect code! Try again.
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </>
+        )}
       </main>
       {/* Loading overlay */}
       <AnimatePresence>
@@ -242,6 +271,16 @@ function LoadingDots() {
           transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
         />
       ))}
+    </div>
+  );
+}
+
+// DetailRow for receipt display
+function DetailRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex flex-row justify-between items-center py-2 border-b border-light last:border-b-0">
+      <span className="font-bungee text-accent-secondary text-base">{label}</span>
+      <span className="font-geist-sans text-base text-accent-primary break-all">{value}</span>
     </div>
   );
 }
