@@ -1,11 +1,12 @@
 'use client';
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { TextAnimate } from "@/components/magicui/text-animate";
 import { TextRevealCard, TextRevealCardTitle, TextRevealCardDescription } from "@/components/ui/text-reveal-card";
-import { useRef } from "react";
 import { motion } from "framer-motion";
+import { supabase } from "@/lib/supabaseClient";
+import { useAccount } from 'wagmi';
 
 const cryptoOptions = ["MNT", "BTC", "ETH", "USDT"];
 const expirationOptions = ["Never", "1 hour", "1 day", "7 days"];
@@ -38,7 +39,6 @@ const chaosColors = [
   "text-accent-tertiary",
 ];
 
-// Add sound effect URLs (place these files in public/sounds/ or use royalty-free URLs)
 const SHUFFLE_SOUND = "/sounds/shuffle.mp3";
 const REVEAL_SOUND = "/sounds/reveal.mp3";
 
@@ -51,7 +51,12 @@ export default function WriteReceiptPage() {
   const [wordsLoaded, setWordsLoaded] = useState(false);
   const [copied, setCopied] = useState(false);
   const [chaos, setChaos] = useState(false);
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const revealTimeout = useRef<NodeJS.Timeout | null>(null);
+  const { address: toaddress, isConnected } = useAccount();
 
   function playSound(url: string) {
     const audio = new Audio(url);
@@ -59,9 +64,36 @@ export default function WriteReceiptPage() {
     audio.play();
   }
 
-  function handleFourplay(e: React.FormEvent) {
+  async function handleFourplay(e: React.FormEvent) {
     e.preventDefault();
-    setWords(getRandomWords());
+    setError("");
+    if (!isConnected || !toaddress) {
+      setError("Please connect your wallet before submitting.");
+      return;
+    }
+    if (!description.trim() || !amount) {
+      setError("Please fill in all required fields.");
+      return;
+    }
+    const newWords = getRandomWords();
+    const memeCode = newWords.join(" ");
+    setLoading(true);
+    // Store in Supabase
+    const { error: supabaseError } = await supabase.from('receipts').insert([
+      {
+        meme_code: memeCode,
+        toaddress,
+        value: amount,
+        description,
+      }
+    ]);
+    setLoading(false);
+    if (supabaseError) {
+      setError("Error saving receipt: " + supabaseError.message);
+      return;
+    }
+    // Only now show the reveal modal and animation
+    setWords(newWords);
     setShowReveal(true);
     setWordsLoaded(false);
     setCopied(false);
@@ -103,7 +135,7 @@ export default function WriteReceiptPage() {
             duration={1.8}
             startOnView
           >
-             We'll cast the spell.
+             We&apos;ll cast the spell.
           </TextAnimate>
           <p className="text-lg text-muted font-geist-sans mb-4">Fill in the deets and let Fourplay turn your request into a secret meme code.</p>
           <p className="text-base text-muted font-geist-sans">No wallet addresses. No awkward follow-ups. Just funny words and fast payments.</p>
@@ -114,6 +146,7 @@ export default function WriteReceiptPage() {
           onSubmit={handleFourplay}
         >
           <h1 className="text-2xl sm:text-3xl font-bungee text-accent-secondary  text-center"> Four words loading...</h1>
+          {error && <div className="text-red-500 text-center font-bold mb-2">{error}</div>}
           {/* Description */}
           <div>
             <label className="block font-bungee text-accent-primary mb-2">Description</label>
@@ -122,6 +155,8 @@ export default function WriteReceiptPage() {
               placeholder="What is this for?"
               className="w-full px-4 py-3 rounded-lg border border-light bg-highlight-2 text-base font-geist-sans focus:outline-none focus:ring-2 focus:ring-accent-primary transition"
               required
+              value={description}
+              onChange={e => setDescription(e.target.value)}
             />
           </div>
           {/* Amount + Crypto */}
@@ -135,6 +170,8 @@ export default function WriteReceiptPage() {
                 placeholder="0.00"
                 className="w-full px-4 py-3 rounded-lg border border-light bg-highlight-2 text-base font-geist-sans focus:outline-none focus:ring-2 focus:ring-accent-primary transition"
                 required
+                value={amount}
+                onChange={e => setAmount(e.target.value)}
               />
             </div>
             <div>
@@ -181,8 +218,9 @@ export default function WriteReceiptPage() {
           <button
             type="submit"
             className="btn-accent text-xl font-bungee px-8 py-4 rounded-full shadow-lg mt-4 hover:scale-105 transition-transform"
+            disabled={loading}
           >
-            Fourplay
+            {loading ? "Saving..." : "Fourplay"}
           </button>
         </form>
         {/* Text Reveal Modal */}
@@ -260,5 +298,5 @@ export default function WriteReceiptPage() {
 </main>
 <Footer />
 </div>
-);
+  );
 }
