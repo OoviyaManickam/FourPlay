@@ -26,6 +26,12 @@ const boxVariants = {
   },
 };
 
+// Helper to shorten address
+function shortenAddress(addr: string) {
+  if (!addr) return '';
+  return addr.slice(0, 4) + '...' + addr.slice(-2);
+}
+
 export default function DropCodePage() {
   const [inputs, setInputs] = useState(["", "", "", ""]);
   const [error, setError] = useState(false);
@@ -44,6 +50,7 @@ export default function DropCodePage() {
 
   // Animate in sequence
   const [boxesEntered, setBoxesEntered] = useState(false);
+  const [showPayModal, setShowPayModal] = useState(false);
 
   // Handle input change and auto-focus next
   const handleInput = (idx: number, val: string) => {
@@ -136,6 +143,7 @@ export default function DropCodePage() {
       const res = await axios.get('https://stargate.finance/api/v1/quotes', { params });
       console.log("parameters-",params);
       setQuoteResult(res.data);
+      setShowPayModal(true);
     } catch (err: any) {
       setQuoteResult({ error: err.response?.data?.message || err.message });
     }
@@ -330,31 +338,68 @@ export default function DropCodePage() {
               >
                 {quoteLoading ? "Fetching Quote..." : "Get Quotes and Pay"}
               </button>
+              {/* Show 'No routes available' if quoteResult is present but has no quotes */}
+              {quoteResult && (!quoteResult.quotes || !quoteResult.quotes.length) && (
+                <div className="mt-2 text-coral font-bungee text-center">No routes available</div>
+              )}
               {/* Show quote result */}
-              {quoteResult && (
-                <>
-                  <div className="mt-4 p-4 bg-highlight-2 rounded-lg border border-light text-sm font-geist-sans overflow-x-auto">
-                    <pre className="whitespace-pre-wrap break-all">{JSON.stringify(quoteResult, null, 2)}</pre>
+              {/* Show pay modal if needed */}
+              {showPayModal && quoteResult && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                  <div className="absolute inset-0" onClick={() => !payLoading && setShowPayModal(false)} />
+                  <div className="relative z-10 bg-white rounded-2xl shadow-2xl border border-light p-8 flex flex-col gap-4 min-w-[320px] max-w-[90vw]">
+                    {(!quoteResult.quotes || !quoteResult.quotes.length) ? (
+                      <div className="text-lg font-bungee text-coral text-center">No quotes found.</div>
+                    ) : (
+                      <>
+                        <div className="text-xl font-bungee text-accent-primary mb-2 text-center">Confirm Payment</div>
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-row justify-between items-center">
+                            <span className="font-bungee text-accent-secondary">Destination Address</span>
+                            <span className="font-geist-sans text-accent-primary">{shortenAddress(receipt?.toaddress || '')}</span>
+                          </div>
+                          <div className="flex flex-row justify-between items-center">
+                            <span className="font-bungee text-accent-secondary">Destination Chain</span>
+                            <span className="font-geist-sans text-accent-primary">{receipt?.destination_chain || '-'}</span>
+                          </div>
+                          <div className="flex flex-row justify-between items-center">
+                            <span className="font-bungee text-accent-secondary">Amount</span>
+                            <span className="font-geist-sans text-accent-primary">{receipt?.value || '-'}</span>
+                          </div>
+                          <div className="flex flex-row justify-between items-center">
+                            <span className="font-bungee text-accent-secondary">Route Fee</span>
+                            <span className="font-geist-sans text-accent-primary">{quoteResult.quotes[0].fees && quoteResult.quotes[0].fees[0] ? quoteResult.quotes[0].fees[0].amount : '-'}</span>
+                          </div>
+                          <div className="flex flex-row justify-between items-center">
+                            <span className="font-bungee text-accent-secondary">Min. Destination Amount</span>
+                            <span className="font-geist-sans text-accent-primary">{quoteResult.quotes[0].dstAmountMin}</span>
+                          </div>
+                        </div>
+                        <button
+                          className="btn-accent text-xl font-bungee px-8 py-4 rounded-full shadow-lg mt-4 hover:scale-105 transition-transform disabled:opacity-60"
+                          onClick={async () => { if (!payLoading) await handlePay(); }}
+                          disabled={payLoading}
+                          type="button"
+                        >
+                          {payLoading ? (
+                            <span className="flex items-center gap-2 justify-center">
+                              <span className="loader inline-block w-5 h-5 border-2 border-accent-primary border-t-transparent rounded-full animate-spin"></span>
+                              Processing...
+                            </span>
+                          ) : "Pay"}
+                        </button>
+                        {/* Show pay status */}
+                        {payError && <div className="mt-2 text-red-500 font-bungee">{payError}</div>}
+                        {paySuccess && (
+                          <div className="mt-2 text-green-600 font-bungee">
+                            Transaction successful!<br />
+                            <span className="break-all">Tx Hash: {paySuccess}</span>
+                          </div>
+                        )}
+                      </>
+                    )}
                   </div>
-                  {/* Show route fee if available */}
-                  {quoteResult.quotes && quoteResult.quotes[0] && quoteResult.quotes[0].fees && quoteResult.quotes[0].fees.length > 0 && (
-                    <div className="mt-2 font-bungee text-accent-primary text-lg">
-                      Route Fee: {quoteResult.quotes[0].fees[0].amount}
-                    </div>
-                  )}
-                  {/* Pay button */}
-                  <button
-                    className="btn-accent text-xl font-bungee px-8 py-4 rounded-full shadow-lg mt-4 hover:scale-105 transition-transform disabled:opacity-60"
-                    onClick={handlePay}
-                    disabled={payLoading}
-                    type="button"
-                  >
-                    {payLoading ? "Processing..." : "Pay"}
-                  </button>
-                  {/* Show pay status */}
-                  {payError && <div className="mt-2 text-red-500 font-bungee">{payError}</div>}
-                  {paySuccess && <div className="mt-2 text-green-600 font-bungee">{paySuccess}</div>}
-                </>
+                </div>
               )}
             </div>
           ) : (
@@ -425,6 +470,20 @@ export default function DropCodePage() {
           </motion.div>
         )}
       </AnimatePresence>
+      {/* Loader spinner style */}
+      <style jsx global>{`
+        .loader {
+          border-width: 2px;
+          border-style: solid;
+          border-radius: 9999px;
+          border-color: var(--primary-accent) transparent var(--primary-accent) var(--primary-accent);
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
