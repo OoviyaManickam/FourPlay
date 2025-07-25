@@ -9,59 +9,6 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { TextAnimate } from "@/components/magicui/text-animate";
 
-const heroColors = [
-  "text-[#a259ff]", // Electric purple
-  "text-[#00ffb3]", // Cyber green
-  "text-[#ff3cac]", // Hot pink
-  "text-[#171717] dark:text-[#ededed]", // Soft black
-];
-
-const memeCards = [
-  {
-    emoji: "🦄",
-    title: "Pay me like one of your French DAOs.",
-    desc: "Cross-chain, meme-powered payments for DAOs, degens, and freelancers.",
-  },
-  {
-    emoji: "🤡",
-    title: "No wallet? No problem. Just drop the memes.",
-    desc: "No addresses, no stress. Just four funny words to get paid.",
-  },
-];
-
-const features = [
-  {
-    icon: "📝",
-    title: "Write a Receipt",
-    desc: "Generate Meme Words",
-    color: "from-[#a259ff] to-[#00ffb3]",
-  },
-  {
-    icon: "🔗",
-    title: "Share Meme Words",
-    desc: "Claim Tokens",
-    color: "from-[#ff3cac] to-[#a259ff]",
-  },
-  {
-    icon: "🪐",
-    title: "Built for Mantle",
-    desc: "Gas-efficient, smooth",
-    color: "from-[#00ffb3] to-[#ff3cac]",
-  },
-  {
-    icon: "🌐",
-    title: "Send from Polygon",
-    desc: "Land in Mantle.",
-    color: "from-[#a259ff] to-[#171717]",
-  },
-  {
-    icon: "😂",
-    title: "It’s like Venmo, but funnier.",
-    desc: "Meme your way to payment.",
-    color: "from-[#ff3cac] to-[#00ffb3]",
-  },
-];
-
 export default function Home() {
   return (
     <div className="w-full">

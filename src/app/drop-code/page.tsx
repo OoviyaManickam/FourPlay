@@ -32,6 +32,21 @@ function shortenAddress(addr: string) {
   return addr.slice(0, 4) + '...' + addr.slice(-2);
 }
 
+type QuoteResult = {
+  quotes?: Array<{
+    fees?: Array<{ amount: string }>;
+    dstAmountMin?: string;
+    steps: Array<{
+      transaction: {
+        to: string;
+        data: string;
+        value?: string;
+      };
+    }>;
+  }>;
+  error?: string;
+};
+
 export default function DropCodePage() {
   const [inputs, setInputs] = useState(["", "", "", ""]);
   const [error, setError] = useState(false);
@@ -40,12 +55,12 @@ export default function DropCodePage() {
   const [receipt, setReceipt] = useState<null | { toaddress: string; value: string; description: string; meme_code: string; destination_chain: string; token_address: string }>(null);
   const inputRefs = [useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null), useRef<HTMLInputElement>(null)];
   const [quoteLoading, setQuoteLoading] = useState(false);
-  const [quoteResult, setQuoteResult] = useState<any>(null);
+  const [quoteResult, setQuoteResult] = useState<QuoteResult | null>(null);
   const [payLoading, setPayLoading] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
   const [paySuccess, setPaySuccess] = useState<string | null>(null);
   const [payHashes, setPayHashes] = useState<string[]>([]);
-  const { address, isConnected } = useAccount();
+  const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
 
@@ -145,8 +160,14 @@ export default function DropCodePage() {
       console.log("parameters-",params);
       setQuoteResult(res.data);
       setShowPayModal(true);
-    } catch (err: any) {
-      setQuoteResult({ error: err.response?.data?.message || err.message });
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        setQuoteResult({ error: err.response?.data?.message || err.message });
+      } else if (err instanceof Error) {
+        setQuoteResult({ error: err.message });
+      } else {
+        setQuoteResult({ error: 'Unknown error' });
+      }
     }
     setQuoteLoading(false);
   }
@@ -181,8 +202,12 @@ export default function DropCodePage() {
       }
       setPaySuccess('All steps executed successfully');
       setPayHashes([...hashes]);
-    } catch (error: any) {
-      setPayError(error.message || 'Transaction failed');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setPayError(error.message || 'Transaction failed');
+      } else {
+        setPayError('Transaction failed');
+      }
     }
     setPayLoading(false);
   }
