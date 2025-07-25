@@ -94,12 +94,23 @@ export default function WriteReceiptPage() {
     const newWords = getRandomWords();
     const memeCode = newWords.join(" ");
     setLoading(true);
+    // Find the selected token object
+    const selectedTokenObj = tokens.find((token: Token) => token.address === crypto);
+    let valueToSave = amount;
+    if (selectedTokenObj) {
+      const symbol = selectedTokenObj.symbol.toLowerCase();
+      if (symbol === 'usdt' || symbol === 'usdc') {
+        valueToSave = (Number(amount) * 1e6).toString();
+      } else {
+        valueToSave = (Number(amount) * 1e18).toString();
+      }
+    }
     // Store in Supabase
     const { error: supabaseError } = await supabase.from('receipts').insert([
       {
         meme_code: memeCode,
         toaddress,
-        value: amount,
+        value: valueToSave,
         description,
         destination_chain: 'mantle',
         token_address: crypto,
