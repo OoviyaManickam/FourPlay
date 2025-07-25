@@ -44,6 +44,7 @@ export default function DropCodePage() {
   const [payLoading, setPayLoading] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
   const [paySuccess, setPaySuccess] = useState<string | null>(null);
+  const [payHashes, setPayHashes] = useState<string[]>([]);
   const { address, isConnected } = useAccount();
   const { data: walletClient } = useWalletClient();
   const publicClient = usePublicClient();
@@ -155,10 +156,12 @@ export default function DropCodePage() {
     setPayLoading(true);
     setPayError(null);
     setPaySuccess(null);
+    setPayHashes([]);
     try {
       if (!quoteResult || !quoteResult.quotes || !quoteResult.quotes.length) throw new Error('No quote available');
       if (!walletClient || !publicClient || !address) throw new Error('Wallet not connected');
       const route = quoteResult.quotes[0];
+      const hashes: string[] = [];
       for (let i = 0; i < route.steps.length; i++) {
         const executableTransaction = route.steps[i].transaction;
         const txParams: Record<string, unknown> = {
@@ -171,10 +174,13 @@ export default function DropCodePage() {
         }
         // Send transaction
         const txHash = await walletClient.sendTransaction(txParams);
+        hashes.push(txHash);
+        setPayHashes([...hashes]);
         // Wait for transaction to be mined
         await publicClient.waitForTransactionReceipt({ hash: txHash });
       }
       setPaySuccess('All steps executed successfully');
+      setPayHashes([...hashes]);
     } catch (error: any) {
       setPayError(error.message || 'Transaction failed');
     }
@@ -342,65 +348,6 @@ export default function DropCodePage() {
               {quoteResult && (!quoteResult.quotes || !quoteResult.quotes.length) && (
                 <div className="mt-2 text-coral font-bungee text-center">No routes available</div>
               )}
-              {/* Show quote result */}
-              {/* Show pay modal if needed */}
-              {showPayModal && quoteResult && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-                  <div className="absolute inset-0" onClick={() => !payLoading && setShowPayModal(false)} />
-                  <div className="relative z-10 bg-white rounded-2xl shadow-2xl border border-light p-8 flex flex-col gap-4 min-w-[320px] max-w-[90vw]">
-                    {(!quoteResult.quotes || !quoteResult.quotes.length) ? (
-                      <div className="text-lg font-bungee text-coral text-center">No quotes found.</div>
-                    ) : (
-                      <>
-                        <div className="text-xl font-bungee text-accent-primary mb-2 text-center">Confirm Payment</div>
-                        <div className="flex flex-col gap-2">
-                          <div className="flex flex-row justify-between items-center">
-                            <span className="font-bungee text-accent-secondary">Destination Address</span>
-                            <span className="font-geist-sans text-accent-primary">{shortenAddress(receipt?.toaddress || '')}</span>
-                          </div>
-                          <div className="flex flex-row justify-between items-center">
-                            <span className="font-bungee text-accent-secondary">Destination Chain</span>
-                            <span className="font-geist-sans text-accent-primary">{receipt?.destination_chain || '-'}</span>
-                          </div>
-                          <div className="flex flex-row justify-between items-center">
-                            <span className="font-bungee text-accent-secondary">Amount</span>
-                            <span className="font-geist-sans text-accent-primary">{receipt?.value || '-'}</span>
-                          </div>
-                          <div className="flex flex-row justify-between items-center">
-                            <span className="font-bungee text-accent-secondary">Route Fee</span>
-                            <span className="font-geist-sans text-accent-primary">{quoteResult.quotes[0].fees && quoteResult.quotes[0].fees[0] ? quoteResult.quotes[0].fees[0].amount : '-'}</span>
-                          </div>
-                          <div className="flex flex-row justify-between items-center">
-                            <span className="font-bungee text-accent-secondary">Min. Destination Amount</span>
-                            <span className="font-geist-sans text-accent-primary">{quoteResult.quotes[0].dstAmountMin}</span>
-                          </div>
-                        </div>
-                        <button
-                          className="btn-accent text-xl font-bungee px-8 py-4 rounded-full shadow-lg mt-4 hover:scale-105 transition-transform disabled:opacity-60"
-                          onClick={async () => { if (!payLoading) await handlePay(); }}
-                          disabled={payLoading}
-                          type="button"
-                        >
-                          {payLoading ? (
-                            <span className="flex items-center gap-2 justify-center">
-                              <span className="loader inline-block w-5 h-5 border-2 border-accent-primary border-t-transparent rounded-full animate-spin"></span>
-                              Processing...
-                            </span>
-                          ) : "Pay"}
-                        </button>
-                        {/* Show pay status */}
-                        {payError && <div className="mt-2 text-red-500 font-bungee">{payError}</div>}
-                        {paySuccess && (
-                          <div className="mt-2 text-green-600 font-bungee">
-                            Transaction successful!<br />
-                            <span className="break-all">Tx Hash: {paySuccess}</span>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
             <>
@@ -484,6 +431,76 @@ export default function DropCodePage() {
           100% { transform: rotate(360deg); }
         }
       `}</style>
+      {/* Show pay modal if needed */}
+      {showPayModal && quoteResult && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-lg">
+          <div className="absolute inset-0" onClick={() => !payLoading && setShowPayModal(false)} />
+          <div className="relative z-10 bg-white rounded-2xl shadow-2xl border border-light p-8 flex flex-col gap-4 min-w-[320px] max-w-[90vw]">
+            {(!quoteResult.quotes || !quoteResult.quotes.length) ? (
+              <div className="text-lg font-bungee text-coral text-center">No quotes found.</div>
+            ) : (
+              <>
+                <div className="text-xl font-bungee text-accent-primary mb-2 text-center">Confirm Payment</div>
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-row justify-between items-center">
+                    <span className="font-bungee text-accent-secondary">Destination Address</span>
+                    <span className="font-geist-sans text-accent-primary">{shortenAddress(receipt?.toaddress || '')}</span>
+                  </div>
+                  <div className="flex flex-row justify-between items-center">
+                    <span className="font-bungee text-accent-secondary">Destination Chain</span>
+                    <span className="font-geist-sans text-accent-primary">{receipt?.destination_chain || '-'}</span>
+                  </div>
+                  <div className="flex flex-row justify-between items-center">
+                    <span className="font-bungee text-accent-secondary">Amount</span>
+                    <span className="font-geist-sans text-accent-primary">{receipt?.value || '-'}</span>
+                  </div>
+                  <div className="flex flex-row justify-between items-center">
+                    <span className="font-bungee text-accent-secondary">Route Fee</span>
+                    <span className="font-geist-sans text-accent-primary">{quoteResult.quotes[0].fees && quoteResult.quotes[0].fees[0] ? quoteResult.quotes[0].fees[0].amount : '-'}</span>
+                  </div>
+                  <div className="flex flex-row justify-between items-center">
+                    <span className="font-bungee text-accent-secondary">Min. Destination Amount</span>
+                    <span className="font-geist-sans text-accent-primary">{quoteResult.quotes[0].dstAmountMin}</span>
+                  </div>
+                </div>
+                {!paySuccess && (
+                  <button
+                    className="btn-accent text-xl font-bungee px-8 py-4 rounded-full shadow-lg mt-4 hover:scale-105 transition-transform disabled:opacity-60"
+                    onClick={async () => { if (!payLoading) await handlePay(); }}
+                    disabled={payLoading}
+                    type="button"
+                  >
+                    {payLoading ? (
+                      <span className="flex items-center gap-2 justify-center">
+                        <span className="loader inline-block w-5 h-5 border-2 border-accent-primary border-t-transparent rounded-full animate-spin"></span>
+                        Processing...
+                      </span>
+                    ) : "Pay"}
+                  </button>
+                )}
+                {/* Show pay status */}
+                {payError && <div className="mt-2 text-red-500 font-bungee">{payError}</div>}
+                {paySuccess && (
+                  <div className="mt-4 flex flex-col items-center justify-center">
+                    <svg className="w-16 h-16 mb-2 text-green-500" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12l3 3 5-5" />
+                    </svg>
+                    <div className="text-2xl font-bungee text-green-600 mb-2">Transaction Successful!</div>
+                    {payHashes.length > 0 && (
+                      <div className="flex flex-col gap-1 mt-2">
+                        {payHashes.map((hash, idx) => (
+                          <span key={hash} className="break-all text-base text-accent-primary">Step {idx + 1} Tx Hash: {hash}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
