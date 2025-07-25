@@ -14,12 +14,9 @@ export default function Navbar() {
       <span className="hidden sm:block"> Drop the Code</span>
        
       </Link>
-      <Link href="/" className=" btn-accent font-bungee text-base sm:text-lg px-4 sm:px-6 py-1.5 sm:py-2 rounded-full ml-1 sm:ml-2 shadow hover:scale-105 transition-transform">
-      <span className="block sm:hidden">Connect</span>
-      <span className="hidden sm:block font-bungee">
+      <div className="ml-1 sm:ml-2">
         <ConnectButton />
-      </span>
-      </Link>
+      </div>
     </nav>
     </>
   );
